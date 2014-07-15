@@ -3,7 +3,7 @@
  *
  *       Filename:  fcntl_access.c
  *
- *    Description:  
+ *    Description:  练习使用fcntl()函数
  *
  *        Version:  1.0
  *        Created:  2014年07月14日 17时00分48秒

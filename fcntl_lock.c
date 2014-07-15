@@ -3,7 +3,7 @@
  *
  *       Filename:  fcntl_lock.c
  *
- *    Description:  
+ *    Description:  练习对锁的应用实例
  *
  *        Version:  1.0
  *        Created:  2014年07月14日 19时46分03秒

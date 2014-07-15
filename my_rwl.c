@@ -3,7 +3,7 @@
  *
  *       Filename:  my_rwl.c
  *
- *    Description:  
+ *    Description:  演示文件读写和文件读写指针的移动操作过程
  *
  *        Version:  1.0
  *        Created:  2014年07月14日 11时32分24秒

@@ -1,9 +1,9 @@
 /*
  * =====================================================================================
  *
- *       Filename:  a.c
+ *       Filename:  my_chmod.c
  *
- *    Description:  
+ *    Description:  练习chmod函数实现自己简化版的chmod命令
  *
  *        Version:  1.0
  *        Created:  2014年06月22日 11时30分33秒
