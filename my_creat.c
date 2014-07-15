@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
 {
 	int fd;
 
-	if ((fd = open ("example_62.c", O_CREAT | O_EXCL, S_IRUSR | S_IWUSR)) == -1) {
+	if ((fd = open ("example_creat", O_CREAT | O_EXCL, S_IRUSR | S_IWUSR)) == -1) {
 	//if ((fd = creat("example_62.c", S_IRWXU)) == -1) {
 		perror ("open");
 		//printf ("open: %s 	with error: %d\n", strerror(errno), errno);

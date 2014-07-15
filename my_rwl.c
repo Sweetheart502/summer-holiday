@@ -83,7 +83,7 @@ int main(int argc, char *argv[])
 	
 	/*在当前目录下创建一个example_63.c的文件*/
 	//if ((fd = creat ("example_63.c", S_IRWXU)) == -1) { 		//creat 只能以只写的方式打开创建的文件，creat 无法创建设备文件(用mknod函数)
-	if ((fd = open ("example_63.c", O_CREAT | O_RDWR | O_TRUNC, S_IRWXU)) == -1) {
+	if ((fd = open ("example_rwl", O_CREAT | O_RDWR | O_TRUNC, S_IRWXU)) == -1) {
 		my_err ("open", errno);
 	}
 	else {

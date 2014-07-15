@@ -39,7 +39,7 @@ int main(int argc, char *argv[])
 	int access_mode;
 	int fd;
 
-	if ((fd = open ("example_64", O_CREAT | O_TRUNC | O_RDWR, S_IRWXU)) == -1) {
+	if ((fd = open ("example_access", O_CREAT | O_TRUNC | O_RDWR, S_IRWXU)) == -1) {
 		my_err ("open", errno);
 	}
 

@@ -36,19 +36,23 @@ void my_err (char *err_string, int line)
 /* 测试锁，只有当测试发现参数lock指定的锁能被设置时，返回0 */
 int lock_test (int fd, struct flock * lock)
 {
-	if (fcntl (fd, F_GETLK, lock) == 0) { 				//执行成功
+	//F_GETLK 如果锁能被设置成功，该命令并不真的设置锁，而只是修改lock的l_type为F_UNLCK，然后返回。
+	if (fcntl (fd, F_GETLK, lock) == 0) { 				//执行成功返回0
 		if (lock->l_type == F_UNLCK) { 				//测试发现能按参数lock要求设置锁
 			printf ("lock can be set in fd\n");
 			return 0;
-		} else { 						//有不兼容的锁存在，打印出设置该锁的进程ID
+		}
+		else { 						//有不兼容的锁存在，打印出设置该锁的进程ID
 			if (lock->l_type == F_RDLCK) {
 				printf ("can't set lock, read lock has been set by: %d\n", lock->l_pid);
-			} else if (lock->l_type == F_WRLCK) {
+			}
+			else if (lock->l_type == F_WRLCK) {
 				printf ("can't set lock, write lock has been set by: %d\n", lock->l_pid);
 			}
 			return -2;
 		} 
-	} else { 							//执行失败返回-1
+	}
+	else { 							//执行失败返回-1
 		perror ("get incompatible locks fail");
 		return -1;
 	} 
@@ -57,15 +61,18 @@ int lock_test (int fd, struct flock * lock)
 /*锁的设置和释放函数*/
 int lock_set (int fd, struct flock * lock)
 {
-	if (fcntl (fd, F_SETLK, lock) == 0) { 				//执行成功
+	if (fcntl (fd, F_SETLK, lock) == 0) { 				//执行成功返回0
 		if (lock->l_type == F_RDLCK) {
 			printf ("set read lock, pid: %d\n", getpid ());
-		} else if (lock->l_type == F_WRLCK) {
+		}
+		else if (lock->l_type == F_WRLCK) {
 			printf ("set write lock, pid: %d\n", getpid ());
-		} else if (lock->l_type == F_UNLCK) {
+		}
+		else if (lock->l_type == F_UNLCK) {
 			printf ("release lock, pid: %d\n", getpid ());
 		}
-	} else { 							//执行失败返回-1
+	}
+	else { 							//执行失败返回-1
 		perror ("lock operation fail\n");
 		return -1;
 	}
@@ -82,7 +89,8 @@ int main(int argc, char *argv[])
 	char read_buf[32]; 						//相当于存储字符的缓冲区
 
 	/*打开或者创建文件*/
-	if ((fd = open ("example_65", O_CREAT | O_TRUNC | O_RDWR)) == -1) {
+	//open成功调用会返回一个文件描述符，若有错误发生则返回-1
+	if ((fd = open ("example_lock", O_CREAT | O_TRUNC | O_RDWR)) == -1) {
 		my_err ("open", errno);
 	}
 
@@ -91,7 +99,9 @@ int main(int argc, char *argv[])
 	}
 
 	/*初始化lock结构*/
+	//memset (void *s, int ch, size_t n); 将s中前n个字节用ch替换并返回s，在此处用0替换即实现初始化的目的
 	memset (&lock, 0, sizeof (struct flock));
+
 	lock.l_start = SEEK_SET;
 	lock.l_whence = 0;
 	lock.l_len = 0;
@@ -107,7 +117,7 @@ int main(int argc, char *argv[])
 	/*读数据*/
 	lseek (fd, 0, SEEK_SET);
 	
-	if ((ret = read (fd, read_buf, 10)) < 0) {
+	if ((ret = read (fd, read_buf, 10)) == -1) { 			//read()成功返回字符数，失败返回-1
 		my_err ("read", errno);
 	}
 
