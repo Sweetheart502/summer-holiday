@@ -50,6 +50,7 @@ int main(int argc, char *argv[])
 		my_err ("getcwd", errno);
 	}
 
+	//输出当前目录
 	printf ("%s\n", buf);
 
 	/*从程序运行结果可以看出，在shell运行后并不能如cd命令一样进行目录的切换。
