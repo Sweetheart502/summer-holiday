@@ -49,7 +49,6 @@ int main(int argc, char *argv[])
 	if (getcwd (buf, 512) < 0) {
 		my_err ("getcwd", errno);
 	}
-
 	//输出当前目录
 	printf ("%s\n", buf);
 
