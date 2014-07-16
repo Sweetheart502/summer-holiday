@@ -30,7 +30,8 @@ int main(int argc, char *argv[])
 		exit (0);
 	}
 
-	/*rename会将参数oldpath所指定的文件名称改为参数newpath所指定的文件名称。若newpath所指定的文件已存在，则原文件会被删除。成功执行返回0，失败返回-1。*/
+	/*rename会将参数oldpath所指定的文件名称改为参数newpath所指定的文件名称。若newpath所指定的文件已存在，则原文件会被删除。*/
+	/*成功执行返回0，失败返回-1。*/
 	if (rename (argv[1], argv[2]) == -1) {
 		perror ("rename");
 		exit (0);
@@ -40,4 +41,3 @@ int main(int argc, char *argv[])
 
 	return EXIT_SUCCESS;
 }
-
