@@ -77,25 +77,25 @@ void display_attribute (struct stat buf, char *name)
 	struct group 	*grp; 					//从该结构体中获取文件所有者所属组的组名
 
 	/* 获取并打印文件类型 */
-	if (S_ISLNK (buf.st_mode)) {
+	if (S_ISLNK (buf.st_mode)) { 				//字符链接
 		printf ("l");
 	}
-	else if (S_ISREG (buf.st_mode)) {
+	else if (S_ISREG (buf.st_mode)) { 			//一般文件
 		printf ("-");
 	}
-	else if (S_ISDIR (buf.st_mode)) {
+	else if (S_ISDIR (buf.st_mode)) { 			//目录文件
 		printf ("d");
 	}
-	else if (S_ISCHR (buf.st_mode)) {
+	else if (S_ISCHR (buf.st_mode)) { 			//字符设备文件
 		printf ("c");
 	}
-	else if (S_ISBLK (buf.st_mode)) {
+	else if (S_ISBLK (buf.st_mode)) { 			//块设备文件
 		printf ("b");
 	}
-	else if (S_ISFIFO (buf.st_mode)) {
+	else if (S_ISFIFO (buf.st_mode)) { 			//管道文件
 		printf ("f");
 	}
-	else if (S_ISSOCK (buf.st_mode)) {
+	else if (S_ISSOCK (buf.st_mode)) { 			//socket套接字
 		printf ("s");
 	}
 	
