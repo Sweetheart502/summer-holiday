@@ -304,6 +304,11 @@ void display_dir (int flag_param, char *path)
 	}
 
 	closedir (dir);
+
+	/* 如果命令中没有-l的选项，打印一个回车换行 */
+	if ((flag_param & PARAM_L) == 0) {
+		printf ("\n");
+	}
  } 
 
 
@@ -352,8 +357,6 @@ int main(int argc, char *argv[])
 		
 		//调用函数，显示文件信息
 		display_dir (flag_param, path); 		//将ls参数和显示目录名传过去
-
-		printf ("\n");
 
 		return 0;
 	}
