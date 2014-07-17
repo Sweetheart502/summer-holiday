@@ -3,7 +3,7 @@
  *
  *       Filename:  my_ls.c
  *
- *    Description:  实现ls的功能（仅仅可以针对-a，-l两个参数的实现）
+ *    Description:  实现ls的功能(仅仅可以针对-a，-l两个参数的实现),针对于当前目录下文件的显示.
  *
  *        Version:  1.0
  *        Created:  2014年07月17日 10时25分07秒
@@ -31,14 +31,14 @@
 #include <linux/limits.h>
 
 #define PARAM_NONE 	0 				//无参数
-#define PARAM_A 	1 				//-a;显示所有文件
-#define PARAM_L 	2 				//-l;一行只显示一个文件的详细信息
+#define PARAM_A 	1 				//-a; 显示所有文件
+#define PARAM_L 	2 				//-l; 一行只显示一个文件的详细信息
 #define MAXROWLINE 	80 				//一行显示的最大字符数
 
 int g_leave_len = MAXROWLINE; 				//一行剩余长度，用于输出对齐
 int g_maxlen; 						//存放某目录下最长文件名的长度
 
-/*输出错误信息函数*/
+/* 输出错误信息函数 */
 void my_err (char *err_string, int line)
 {
 	fprintf (stderr, "line: %d\n", line);
@@ -69,7 +69,7 @@ void display_single (char *name)
 	g_leave_len -= g_maxlen + 2; 				//更新该行当前剩下的字符数
 }
 
-/*获取文件属性并打印*/
+/* 获取文件属性并打印 */
 void display_attribute (struct stat buf, char *name)
 {
 	char 		buf_time[32];
@@ -99,7 +99,7 @@ void display_attribute (struct stat buf, char *name)
 		printf ("s");
 	}
 	
-	/*获取并打印文件所有者的权限*/
+	/* 获取并打印文件所有者的权限 */
 	if (buf.st_mode & S_IRUSR) {
 		printf ("r");
 	}
@@ -118,7 +118,7 @@ void display_attribute (struct stat buf, char *name)
 	else 
 		printf ("-");
 
-	/*获取并打印与文件所有者同组的用户权限*/
+	/* 获取并打印与文件所有者同组的用户权限 */
 	if (buf.st_mode & S_IRGRP) {
 		printf ("r");
 	}
@@ -137,7 +137,7 @@ void display_attribute (struct stat buf, char *name)
 	else 
 		printf ("-");
 
-	/*获取并打印其他用户对该文件的操作权限*/
+	/* 获取并打印其他用户对该文件的操作权限 */
 	if (buf.st_mode & S_IROTH) {
 		printf ("r");
 	}
@@ -158,7 +158,7 @@ void display_attribute (struct stat buf, char *name)
 
 	printf ("  "); 							//为了统一对齐而设置的间隔
 
-	/*根据uid和gid获取文件所有者的用户名和用户组名*/
+	/* 根据uid和gid获取文件所有者的用户名和用户组名 */
 	psd = getpwuid (buf.st_uid);
 	grp = getgrgid (buf.st_gid);
 
@@ -197,7 +197,7 @@ void display (int flag, char *pathname)
 	}
 	name[j] = '\0';
 
-	/*lstat函数来方便解析链接文件*/
+	/* lstat函数来方便解析链接文件,获取文件的状态信息 */
 	if (lstat (pathname, &buf) == -1) {
 		my_err ("lstat", errno);
 	}
@@ -230,7 +230,7 @@ void display (int flag, char *pathname)
 	}
 }
 
-/*显示当前目录信息函数*/
+/* 显示当前目录信息函数 */
 void display_dir (int flag_param, char *path)
 {
 	DIR 		*dir; 					//打开目录获得的目录流
@@ -280,7 +280,7 @@ void display_dir (int flag_param, char *path)
 		filenames[i][len] = '\0';
 		strcat (filenames[i], ptr->d_name);
 		filenames[i][len + strlen (ptr->d_name)] = '\0';
-	} /*存储含当前路径的文件名于filenames中*/
+	} /* 存储含当前路径的文件名于filenames中 */
 
 	/* 冒泡法对文件名进行排序，排序后按照当前顺序存储在数组中 */
 	for (i = 0; i < count - 1; i++) {
@@ -315,7 +315,7 @@ int main(int argc, char *argv[])
 	int 		flag_param = PARAM_NONE; 		//参数种类，即是否有-l和-a选项
 	struct stat 	buf;
 
-	//获取命令参数，并将它们存储在param数组中，以及获得-的数目
+	//获取命令参数，并将它们存储在param数组中，以及获得'-'的数目
 	j   = 0;
 	num = 0;
 
