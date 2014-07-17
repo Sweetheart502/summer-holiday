@@ -42,8 +42,137 @@ int g_maxlen; 						//存放某目录下最长文件名的长度
 void my_err (char *err_string, int line)
 {
 	fprintf (stderr, "line: %d\n", line);
-	perrno ("err_string");
+	perror ("err_string");
 	exit (0);
+}
+
+/* 在没有使用-l参数的选项时，打印一个文件名，打印时上下对齐 */
+void display_single (char *name)
+{
+	int i, len;
+
+	//如果本行不足以打印一个文件名则换行
+	if (g_leave_len < g_maxlen) {
+		printf ("\n");
+		g_leave_len = MAXROWLINE;
+	}
+
+	len = strlen (name);
+	len = g_maxlen - len; 					//以最长文件名为标准还剩下多少长度
+	printf ("%-s", name);
+
+	for (i = 0; i < len; i++) {
+		printf (" ");
+	}
+	printf ("  "); 						//在输出两个空格，这两个空格是为了统一间隔而设定的
+
+	g_leave_len -= g_maxlen + 2; 				//更新该行当前剩下的字符数
+}
+
+/*获取文件属性并打印*/
+void display_attribute (struct stat buf, char *name)
+{
+	char 		buf_time[32];
+	struct passwd 	*psd; 					//从该结构体中获取文件所有者的用户组
+	struct group 	*grp; 					//从该结构体中获取文件所有者所属组的组名
+
+	/* 获取并打印文件类型 */
+	if (S_ISLNK (buf.st_mode)) {
+		printf ("l");
+	}
+	else if (S_ISREG (buf.st_mode)) {
+		printf ("-");
+	}
+	else if (S_ISDIR (buf.st_mode)) {
+		printf ("d");
+	}
+	else if (S_ISCHR (buf.st_mode)) {
+		printf ("c");
+	}
+	else if (S_ISBLK (buf.st_mode)) {
+		printf ("b");
+	}
+	else if (S_ISFIFO (buf.st_mode)) {
+		printf ("f");
+	}
+	else if (S_ISSOCK (buf.st_mode)) {
+		printf ("s");
+	}
+	
+	/*获取并打印文件所有者的权限*/
+	if (buf.st_mode & S_IRUSR) {
+		printf ("r");
+	}
+	else 
+		printf ("-");
+
+	if (buf.st_mode & S_IWUSR) {
+		printf ("w");
+	}
+	else 
+		printf ("-");
+
+	if (buf.st_mode & S_IXUSR) {
+		printf ("x");
+	}
+	else 
+		printf ("-");
+
+	/*获取并打印与文件所有者同组的用户权限*/
+	if (buf.st_mode & S_IRGRP) {
+		printf ("r");
+	}
+	else 
+		printf ("-");
+
+	if (buf.st_mode & S_IWGRP) {
+		printf ("w");
+	}
+	else 
+		printf ("-");
+
+	if (buf.st_mode & S_IXGRP) {
+		printf ("x");
+	}
+	else 
+		printf ("-");
+
+	/*获取并打印其他用户对该文件的操作权限*/
+	if (buf.st_mode & S_IROTH) {
+		printf ("r");
+	}
+	else 
+		printf ("-");
+
+	if (buf.st_mode & S_IWOTH) {
+		printf ("w");
+	}
+	else 
+		printf ("-");
+
+	if (buf.st_mode & S_IXOTH) {
+		printf ("x");
+	}
+	else 
+		printf ("-");
+
+	printf ("  "); 							//为了统一对齐而设置的间隔
+
+	/*根据uid和gid获取文件所有者的用户名和用户组名*/
+	psd = getpwuid (buf.st_uid);
+	grp = getgrgid (buf.st_gid);
+
+	printf ("%-4u", buf.st_nlink); 					//打印文件的硬链接数
+
+	printf ("%-12s", psd->pw_name);
+	printf ("%-12s", grp->gr_name);
+
+	printf ("%6ld", buf.st_size); 					//打印文件的大小
+
+	strcpy (buf_time, ctime (&buf.st_mtime));
+	buf_time[strlen (buf_time) - 1] = '\0'; 			//去掉换行符，用结束标志来替代它
+
+	printf (" %s", buf_time); 					//打印修改时间
 }
 
 /*
@@ -86,13 +215,13 @@ void display (int flag, char *pathname)
 		case PARAM_A: 		
 			display_single (name);
 			break;
-		case PARAN_L:
+		case PARAM_L:
 			if (name[0] != '.') {
 				display_attribute (buf, name);
 				printf ("  %-s\n", name);
 			}
 			break;
-		caes PARAM_A + PARAM_L:
+		case PARAM_A + PARAM_L:
 			display_attribute (buf, name);
 			printf ("  %-s\n", name);
 			break;
@@ -148,9 +277,9 @@ void display_dir (int flag_param, char *path)
 		}
 
 		strcpy (filenames[i], path);
-		filenames[len] = '\0';
+		filenames[i][len] = '\0';
 		strcat (filenames[i], ptr->d_name);
-		filenames[len + strlen (ptr->d_name)] = '\0';
+		filenames[i][len + strlen (ptr->d_name)] = '\0';
 	} /*存储含当前路径的文件名于filenames中*/
 
 	/* 冒泡法对文件名进行排序，排序后按照当前顺序存储在数组中 */
@@ -214,7 +343,7 @@ int main(int argc, char *argv[])
 			exit (1);
 		}
 	}
-	param[j] == '\0'; 					//为参数字符数组添加结束标志
+	param[j] = '\0'; 					//为参数字符数组添加结束标志
 
 	/* 如果没有输入具体的文件名，则就是显示当前目录下文件信息 */
 	if (num + 1 == argc) {
