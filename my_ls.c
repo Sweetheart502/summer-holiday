@@ -353,6 +353,8 @@ int main(int argc, char *argv[])
 		//调用函数，显示文件信息
 		display_dir (flag_param, path); 		//将ls参数和显示目录名传过去
 
+		printf ("\n");
+
 		return 0;
 	}
 
