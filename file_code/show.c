@@ -3,7 +3,7 @@
  *
  *       Filename:  show.c
  *
- *    Description:  自己的ls,实现-l/-a.
+ *    Description:  自己的ls,目前仅仅实现-l/-a.
  *
  *        Version:  1.0
  *        Created:  2014年07月19日 11时51分17秒
