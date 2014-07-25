@@ -33,7 +33,7 @@
 #define PARAM_NONE 	0 				//无参数
 #define PARAM_A 	1 				//-a; 显示所有文件
 #define PARAM_L 	2 				//-l; 一行只显示一个文件的详细信息
-#define MAXROWLINE 	80 				//一行显示的最大字符数
+#define MAXROWLINE 	150 				//一行显示的最大字符数
 
 int g_leave_len = MAXROWLINE; 				//一行剩余长度，用于输出对齐
 int g_maxlen; 						//存放某目录下最长文件名的长度
@@ -296,6 +296,10 @@ void display_dir (int flag_param, char *path)
 				filenames[j + 1][strlen (temp)] = '\0';
 			}
 		}
+	}
+
+	if (flag_param & PARAM_L) {
+		printf ("total  %d\n", count);
 	}
 
 	for (i = 0; i < count; i++) {
