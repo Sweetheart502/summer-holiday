@@ -45,7 +45,7 @@ void setup ( char *buf, char * argv[] )
 
 	argv[i] = NULL; 				/* argv末尾是以NULL结束的 */
 
-	execvp ( argv[0], argv );
+	execvp ( argv[0], argv ); 			/* 调用函数执行可执行程序 */
 }
 
 int main( )
