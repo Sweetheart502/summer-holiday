@@ -26,7 +26,10 @@ int * thread ( void * arg )
 {
 	pthread_t 	newtid;
 
-	printf ( "Creat thread is successful! The tid is %lu.\n", newtid );
+	/* 获取新线程ID */
+	newtid = pthread_self ();
+
+	printf ( "Creat thread is successful! The tid is %lu.\n", newtid ); 	/* 输出新线程ID */
 
 	return NULL;
 }
@@ -43,6 +46,8 @@ int main(int argc, char *argv[])
 		perror ( "pthread_creat" );
 		exit ( 1 );
 	}
+
+	sleep ( 1 ); 						/* 当将这行注释掉时，只输出第一行内容，不输出新的线程ID，不知道为什么 */
 
 	return EXIT_SUCCESS;
 }
