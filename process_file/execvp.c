@@ -3,7 +3,7 @@
  *
  *       Filename:  execvp.c
  *
- *    Description:  了解execvp ()函数。
+ *    Description:  用实践来了解execvp ()函数。
  *
  *        Version:  1.0
  *        Created:  2014年07月26日 10时00分28秒
