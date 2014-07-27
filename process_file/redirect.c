@@ -3,7 +3,7 @@
  *
  *       Filename:  redirect.c
  *
- *    Description:  了解重定向。
+ *    Description:  关于输出重定向的几个例子及其区别。
  *
  *        Version:  1.0
  *        Created:  2014年07月27日 17时40分11秒
