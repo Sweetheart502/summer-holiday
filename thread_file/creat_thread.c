@@ -29,7 +29,7 @@ int * thread ( void * arg )
 	/* 获取新线程ID */
 	newtid = pthread_self ();
 
-	printf ( "Creat thread is successful! The newtid is %lu.\n", newtid ); 	/* 输出新线程ID */
+	printf ( "Creat thread is successful! The newtid is %lu, the pid is %d.\n", newtid, getpid () ); 	/* 输出新线程ID */
 
 	return NULL;
 }
@@ -39,7 +39,7 @@ int main(int argc, char *argv[])
 	pthread_t 	tid;
 
 	/* 输出主线程ID */
-	printf ( "Curthread is %lu\n", pthread_self () );
+	printf ( "Curthread is %lu, the pid is %d.\n", pthread_self (), getpid () );
 
 	/* 创建新线程 */
 	if ( pthread_create ( &tid, NULL, ( void * ) thread, NULL ) != 0 ) { 	/* 返回值非0则失败 */
