@@ -34,6 +34,7 @@ int * thread ( void * arg )
 	return NULL;
 }
 
+/* 主函数 */
 int main(int argc, char *argv[])
 {
 	pthread_t 	tid;
