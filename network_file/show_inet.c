@@ -3,7 +3,7 @@
  *
  *       Filename:  show_inet.c
  *
- *    Description:  
+ *    Description:  观察这几个函数的作用。
  *
  *        Version:  1.0
  *        Created:  2014年08月01日 17时06分22秒
