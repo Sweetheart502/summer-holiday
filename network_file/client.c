@@ -133,7 +133,7 @@ int main(int argc, char *argv[])
 	int 			sock_fd; 	/* socket的返回值 */
 	int 			serv_port; 	/* 服务器端口 */
 	struct sockaddr_in 	serv_addr; 	/* 服务器地址 */
-	char 			recv_buf[BUFSIZE];
+	char 			recv_buf[BUFSIZE], in_buf[BUFSIZE];
 
 	/* 检查参数个数 */
 	if ( argc != 5 ) {
@@ -192,11 +192,10 @@ int main(int argc, char *argv[])
 	/* 输入用户名和密码 */
 	input_userinfo ( sock_fd, "username" );
 	input_userinfo ( sock_fd, "password" );
-
-
+	
 	ret = my_recv ( sock_fd, recv_buf, sizeof ( recv_buf ) );
 
-	/* 读取欢迎信息并打印出来 */
+/* 读取欢迎信息并打印出来 */
 	if ( ret == -1 ) {
 		printf ( "data is too long.\n" );
 		exit ( 1 );
@@ -206,6 +205,28 @@ int main(int argc, char *argv[])
 		printf ( "%c", recv_buf[i] );
 	}
 	printf ( "\n" );
+
+	while ( 1 ) {
+		//init the in_ buf
+		memset ( in_buf, 0, sizeof ( in_buf ) );
+
+		if ( ( send ( sock_fd, in_buf, sizeof ( in_buf ), 0 ) ) == -1 ) {
+			perror ( "send" );
+			exit ( 1 );
+		}
+
+		ret = my_recv ( sock_fd, recv_buf, sizeof ( recv_buf ) );
+
+		if ( ret == -1 ) {
+			perror ( "my_recv" );
+			exit ( 1 );
+		}
+
+		for ( i = 0; i < ret; i++ ) {
+			printf ( "%c", in_buf[i] );
+		}
+		printf ( "\n" );
+	}
 
 	close ( sock_fd );
 
