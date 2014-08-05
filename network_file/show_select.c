@@ -42,8 +42,9 @@ int main(int argc, char *argv[])
 
 	/* 监视文件描述符0是否有数据输入，文件描述符0表示标准输入，即键盘输入 */
 	FD_ZERO ( &readfds );
+	FD_SET ( 0, &readfds );
 
-	/* 设置阻塞时间为10秒 */
+	/* wait up to ten seconds */
 	timeout.tv_sec = 10; 			/* seconds */
 	timeout.tv_usec = 0; 			/* microseconds */
 
