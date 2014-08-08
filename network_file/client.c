@@ -25,10 +25,55 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <fcntl.h>
+#include <time.h>
 
 #define INVALID_USERINFO	'n' 		/* 用户信息无效 */
 #define VALID_USERINFO 		'y' 		/* 用户信息有效 */
 #define BUFSIZE 		1024
+
+void record_err ( char * string )
+{
+	char 	str[255];
+	time_t 	now;
+	int 	len, fd;
+
+	if ( ( fd = open ( "./error", O_RDWR | O_CREAT | O_APPEND ) ) == -1 ) {
+		perror ( "open" );
+		exit ( 1 );
+	}
+
+	strcpy ( str, string );
+	strcat ( str, " error " );
+
+	len = strlen ( str );
+
+	if ( write ( fd, str, len ) != len ) {
+		perror ( "write" );
+		exit ( 1 );
+	}
+
+	time ( &now );
+	len = strlen ( ctime ( &now ) );
+
+	if ( write ( fd, ctime ( &now ), len ) != len ) {
+		perror ( "write" );
+		exit ( 1 );
+	}
+
+	close ( fd );
+}
+
+
+void dis_err ( char *string, int line )
+{
+	perror ( string );
+	fprintf ( stderr, "line: %d\n", line );
+
+	record_err ( string );
+
+	exit ( 1 );
+}
 
 int my_recv ( int sock_fd, char * data_buf, int len )
 {
@@ -40,8 +85,7 @@ int my_recv ( int sock_fd, char * data_buf, int len )
 	/* 如果自定义缓冲区中没有数据，则从套接字读取数据 */
 	if ( len_remain <= 0 ) {
 		if (  ( len_remain = recv ( sock_fd, recv_buf, sizeof ( recv_buf ), 0 ) ) < 0 ) {
-			perror ( "recv" );
-			exit ( 1 );
+			dis_err ( "recv", __LINE__ );
 		} else if ( len_remain == 0 ) {
 			return 0; 		/* 目的使计算机端的socket连接关闭 */
 		}
@@ -66,6 +110,8 @@ int my_recv ( int sock_fd, char * data_buf, int len )
 	return i; 				/* 读取成功 */
 }
 
+
+//
 int get_userinfo ( char * buf, int len )
 {
 	int 		i;
@@ -103,14 +149,12 @@ void input_userinfo ( int sock_fd, const char * string )
 		}
 
 		if ( send ( sock_fd, input_buf, strlen ( input_buf ), 0 ) < 0 ) {
-			perror ( "send" );
-			exit ( 1 );
+			dis_err ( "send", __LINE__ );
 		}
 
 		/* 从连接套接字上读取一次数据 */
 		if ( my_recv ( sock_fd, recv_buf, sizeof ( recv_buf ) ) < 0 ) {
-			perror ( "my_recv" );
-			exit ( 1 );
+			dis_err ( "my_recv", __LINE__ );
 		}
 
 		if ( recv_buf[0] == VALID_USERINFO ) {
@@ -150,7 +194,7 @@ int main(int argc, char *argv[])
 		if ( strcmp ( "-p", argv[i] ) == 0 ) {
 			serv_port = atoi ( argv[i + 1] );  		/* 将字符串转换成整型数 */
 
-			if ( serv_port < 0 || serv_port >65535 ) {
+			if ( serv_port < 0 || serv_port > 65535 ) {
 				printf ( "The recv_port is unvalid.\n" );
 				exit ( 1 );
 			} else {
@@ -179,14 +223,12 @@ int main(int argc, char *argv[])
 	sock_fd = socket ( AF_INET, SOCK_STREAM, 0 );
 
 	if ( sock_fd == -1 ) {
-		perror ( "socket" );
-		exit ( 1 );
+		dis_err ( "socket", __LINE__ );
 	}
 
 	/* 向服务器发送连接请求 */
 	if ( connect ( sock_fd, ( struct sockaddr * ) &serv_addr, sizeof ( struct sockaddr ) ) < 0 ) {
-		perror ( "connect" );
-		exit ( 1 );
+		dis_err ( "connect", __LINE__ );
 	}
 
 	/* 输入用户名和密码 */
@@ -210,16 +252,18 @@ int main(int argc, char *argv[])
 		//init the in_ buf
 		memset ( in_buf, 0, sizeof ( in_buf ) );
 
+		if ( get_userinfo ( in_buf, sizeof ( in_buf ) ) == -1 ) {
+			dis_err ( "get_userinfo", __LINE__ );
+		}
+
 		if ( ( send ( sock_fd, in_buf, sizeof ( in_buf ), 0 ) ) == -1 ) {
-			perror ( "send" );
-			exit ( 1 );
+			dis_err ( "send", __LINE__ );
 		}
 
 		ret = my_recv ( sock_fd, recv_buf, sizeof ( recv_buf ) );
 
 		if ( ret == -1 ) {
-			perror ( "my_recv" );
-			exit ( 1 );
+			dis_err ( "my_recv", __LINE__ );
 		}
 
 		for ( i = 0; i < ret; i++ ) {
@@ -227,6 +271,7 @@ int main(int argc, char *argv[])
 		}
 		printf ( "\n" );
 	}
+
 
 	close ( sock_fd );
 
