@@ -319,8 +319,8 @@ int main(int argc, char *argv[])
 
 				if ( strcmp ( recv_buf, "byebye~\n" ) == 0 ) {
 					printf ( "%s exit\n", users[name_num].username );
-					close ( sock_fd );
-					close ( conn_fd );
+					//close ( sock_fd );
+					//close ( conn_fd );
 					exit ( 0 );
 				} else {
 					//如果接收到的是ls则调用函数显示在线人数
