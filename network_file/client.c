@@ -220,6 +220,7 @@ int main(int argc, char *argv[])
 	}
 
 	/* 创建一个TCP套接字 */
+	printf ( "Now the client is creating a socket ~\n" );
 	sock_fd = socket ( AF_INET, SOCK_STREAM, 0 );
 
 	if ( sock_fd == -1 ) {
@@ -227,6 +228,7 @@ int main(int argc, char *argv[])
 	}
 
 	/* 向服务器发送连接请求 */
+	printf ( "Now the client is conneted with the server ~\n" );
 	if ( connect ( sock_fd, ( struct sockaddr * ) &serv_addr, sizeof ( struct sockaddr ) ) < 0 ) {
 		dis_err ( "connect", __LINE__ );
 	}
@@ -237,7 +239,7 @@ int main(int argc, char *argv[])
 	
 	ret = my_recv ( sock_fd, recv_buf, sizeof ( recv_buf ) );
 
-/* 读取欢迎信息并打印出来 */
+	/* 读取欢迎信息并打印出来 */
 	if ( ret == -1 ) {
 		printf ( "data is too long.\n" );
 		exit ( 1 );
