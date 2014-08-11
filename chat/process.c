@@ -1,0 +1,71 @@
+//to process it in the thread
+void *recv_msg ( int *conn_fd )
+{
+	struct user 	user;
+	/*
+	 * struct user {
+	 * 	char 	username[32];
+	 * 	char 	password[32];
+	 * 	int 	state;
+	 * 	int 	socket;
+	 * }USER;
+	 */
+	struct msg 	recv_msg;
+	/*
+	 * struct msg {
+	 * 	char sender[32];
+	 * 	char receiver[32];
+	 * 	char commmand[32];
+	 * 	char msg[MAX_LEN];
+	 * }MSG;
+	 */
+	user.socket = *conn_fd;
+	
+//	while ( 1 ) {
+		int 	ret;
+		//init the msg
+		memset ( &recv_msg, 0, sizeof (MSG) );
+
+		//recv the msg from the client
+		if ( ( ret = recv ( *conn_fd, &recv_msg, sizeof (MSG), 0 ) ) < 0 ) {
+			my_err ( "recv", __LINE__ );
+		}
+
+		//if ( strcmp ( msg.command, "LS" ) == 0 ) {
+			//显示在线人数及相关信息　
+			//list_login ();
+		//} else if {
+			//发送信息
+
+		//}
+}
+
+
+//process the communication of the server and the client 
+void process ( int sock_fd )
+{
+	int 			conn_fd; 	//客户端套接字
+	int 			cli_len; 	//客户端地址长度
+	pthread_t 		tid; 		//线程ID
+	struct sockaddr_in 	cli_addr; 	//客户端地址
+
+	struct user		new, chater[20];//用户信息结构体
+	int 			i, lemon = 0, sum;
+	int 			flag = 0;  	//标志是否登陆成功
+	int 			count = 0; 	//三次登陆机会
+	char 			send_msg[MAX_LEN];
+
+	//to accept the client's request
+	cli_len = sizeof ( struct sockaddr_in );
+
+	if ( (conn_fd = accept ( sock_fd, ( struct sockaddr * )&cli_addr, &cli_len ) ) == -1 )	 {
+		my_err ( "accept", __LINE__ );
+	}
+
+	//display the ip
+	printf ( " \n\t\t >_< A new client %s is connected.\n\n", inet_ntoa (cli_addr.sin_addr) );
+
+	
+	//create a thread to process the command
+	pthread_create ( &tid, NULL, (void *)recv_msg, &conn_fd );
+}
