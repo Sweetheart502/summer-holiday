@@ -1,5 +1,5 @@
 //input the user_info and identity its validity
-int user_login ( int conn_fd )
+int user_login ( int conn_fd, char *name )
 {
 	//输入用户名和密码，并验证是否存在，存在且未登录则登陆，并修改其状态以及套接字数值．
 	FILE 		*fp;
@@ -46,6 +46,7 @@ int user_login ( int conn_fd )
 				if ( strcmp ( new.password, chater[i].password ) == 0 ) {
 					//用户密码匹配
 					if ( chater[i].state == 0 ) {
+						strcpy ( name, chater[i].username );
 						//在服务器端显示用户登陆成功
 						printf ( "\n\n\t\t" );
 						printf ( "%s login", chater[i].username );

@@ -24,10 +24,10 @@ void *recv_msg ( int *conn_fd )
 //	while ( 1 ) {
 		int 	ret;
 		//init the msg
-		memset ( &recv_msg, 0, sizeof (MSG) );
+		memset ( &recv_msg, 0, sizeof (struct msg) );
 
 		//recv the msg from the client
-		if ( ( ret = recv ( *conn_fd, &recv_msg, sizeof (MSG), 0 ) ) < 0 ) {
+		if ( ( ret = recv ( *conn_fd, &recv_msg, sizeof (struct msg), 0 ) ) < 0 ) {
 			my_err ( "recv", __LINE__ );
 		}
 
@@ -42,19 +42,17 @@ void *recv_msg ( int *conn_fd )
 
 
 //process the communication of the server and the client 
-void process ( int sock_fd )
+void process ( int sock_fd, struct line *head)
 {
 	int 			conn_fd; 	//客户端套接字
 	int 			cli_len; 	//客户端地址长度
 	pthread_t 		tid; 		//线程ID
 	struct sockaddr_in 	cli_addr; 	//客户端地址
-
-	struct user		new, chater[20];//用户信息结构体
-	int 			i, lemon = 0, sum;
-	int 			flag = 0;  	//标志是否登陆成功
-	int 			count = 0; 	//三次登陆机会
+	char 			name[MAX_LEN];
+	int 			socket;
 	char 			send_msg[MAX_LEN];
 
+	struct line 		*p = head, *q;
 	//to accept the client's request
 	cli_len = sizeof ( struct sockaddr_in );
 
@@ -62,9 +60,42 @@ void process ( int sock_fd )
 		my_err ( "accept", __LINE__ );
 	}
 
+	#ifdef DEBUG
+		printf ( "conn_fd = %d\n", conn_fd );
+	#endif
+
 	//display the ip
 	printf ( " \n\t\t >_< A new client %s is connected.\n\n", inet_ntoa (cli_addr.sin_addr) );
 
+	//apply a node
+	q = ( struct line * ) malloc ( sizeof ( struct line ) );
+
+	//receive the client's msg
+	memset ( name, 0, sizeof (name) );
+	if ( recv ( conn_fd, name, sizeof (name), 0 ) < 0 ) {
+		my_err ( "recv", __LINE__ );
+	}
+	strcpy ( q->username, name );
+	
+	#ifdef DEBUG
+		printf ( "name = %s\nq->username = %s\n", name, q->username );
+		getchar ();
+	#endif
+	
+	if ( recv ( conn_fd, &socket, sizeof (int), 0 ) < 0 ) {
+		my_err ( "recv", __LINE__ );
+	}
+	q->socket = socket;
+	#ifdef DEBUG
+		printf ( "socket = %d\nq->socket = %d\n", socket, q->socket );
+	#endif
+
+	//insert the login to the tail
+	while ( p->next != NULL ) {
+		p = p->next;
+	}
+	q->next = p->next; 	//挂尾链
+	p = p->next = q; 	//挂前链，挪尾指针
 	
 	//create a thread to process the command
 	pthread_create ( &tid, NULL, (void *)recv_msg, &conn_fd );

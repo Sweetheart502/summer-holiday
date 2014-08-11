@@ -1,6 +1,7 @@
 #include "head.h"
 #include "my_err.c"
 #include "process.c"
+#include "creatlink.c"
 
 // 主函数 
 int main(int argc, char *argv[])
@@ -11,7 +12,9 @@ int main(int argc, char *argv[])
 //	int 			ret;
 
 //	int 			name_num;
+
 	struct sockaddr_in 	cli_addr, serv_addr;
+	struct line 		*head;
 
 	// 创建一个TCP套接字 
 	printf ( "Now the system is creating the scket ~ \n" );
@@ -50,11 +53,13 @@ int main(int argc, char *argv[])
 		my_err ( "listen", __LINE__ );
 	}
 
+	head = creatlink ();
+
 	getchar ();
 	system ( "clear" );
 	printf ( "\t==~==TCP SERVER IS OK==~==\n" );
 	while ( 1 ) {
-		process ( sock_fd );
+		process ( sock_fd, head );
 	}
 
 }
