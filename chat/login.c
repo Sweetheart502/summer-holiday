@@ -1,3 +1,5 @@
+#include "communicate.c"
+//#include "link.c"
 
 void login ()
 {
@@ -54,7 +56,7 @@ void login ()
 	//clear the screen
 	//system ( "clear" );
 
-	//send the success
+	//copy the name to the send_msg
 	strcpy ( send_msg, name );
 
 	#ifdef DEBUG
@@ -62,14 +64,18 @@ void login ()
 		getchar ();
 	#endif
 
+	//send the username to the server
 	if ( send ( conn_fd, send_msg, sizeof (send_msg), 0 ) < 0 ) {
 		my_err ( "send", __LINE__ );
 	}
 
+	/*
+	//send the client's socket to the server
 	if ( send ( conn_fd, &conn_fd, sizeof (int), 0 ) < 0 ) {
 		my_err ( "send", __LINE__ );
 	}
-	
+	*/
 
 	//否则就是进行聊天communication
+	communicate ( conn_fd, name );
 }

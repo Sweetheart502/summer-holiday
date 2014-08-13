@@ -111,32 +111,4 @@ int user_login ( int conn_fd, char *name )
 	}
 
 	return 0;
-
-/*
-		//send the new user's info
-		if ( send ( conn_fd, &new, sizeof (struct user), 0 ) < 0 ) {
-			my_err ( "send", __LINE__ );
-		}
-
-
-		//接收服务器端的验证信息
-		if ( recv (conn_fd, recv_msg, strlen (recv_msg), 0) < 0 ) {
-			my_err ( "recv", __LINE__ );
-		}
-	
-		//在客户端显示验证信息
-		printf ( "%s", recv_msg );
-
-		getchar ();
-
-		//登陆成功退出该循环
-		if ( strcmp (recv_msg, "\n\n\t\tlogin successfully.\n" ) == 0 ) {
-			break;
-		}
-		if ( strcmp (recv_msg, "fail to exit.\n") == 0 ) {
-			close (conn_fd);
-			exit (1);
-		}
-	}
-*/
 }

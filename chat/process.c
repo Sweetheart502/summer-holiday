@@ -1,49 +1,60 @@
-//to process it in the thread
-void *recv_msg ( int *conn_fd )
+//#include "list_login.c"
+//#include "find_receiver.c"
+
+void *recv_msg ( ( struct tid * )msg )
 {
-	struct user 	user;
-	/*
-	 * struct user {
-	 * 	char 	username[32];
-	 * 	char 	password[32];
-	 * 	int 	state;
-	 * 	int 	socket;
-	 * }USER;
-	 */
+
+}
+
+/*
+//to process it in the thread
+void *recv_msg ( (struct tid *)arg )
+{
 	struct msg 	recv_msg;
-	/*
-	 * struct msg {
-	 * 	char sender[32];
-	 * 	char receiver[32];
-	 * 	char commmand[32];
-	 * 	char msg[MAX_LEN];
-	 * }MSG;
-	 */
-	user.socket = *conn_fd;
-	
-//	while ( 1 ) {
-		int 	ret;
-		//init the msg
+	int 		send_fd;
+
+	while (1) {
+		//init
 		memset ( &recv_msg, 0, sizeof (struct msg) );
 
-		//recv the msg from the client
-		if ( ( ret = recv ( *conn_fd, &recv_msg, sizeof (struct msg), 0 ) ) < 0 ) {
+		//receive msg
+		if ( recv ( arg->conn_fd, &recv_msg, sizeof (struct msg), 0 ) < 0 ) {
 			my_err ( "recv", __LINE__ );
 		}
 
-		//if ( strcmp ( msg.command, "LS" ) == 0 ) {
-			//显示在线人数及相关信息　
-			//list_login ();
-		//} else if {
-			//发送信息
+		//according to the command ti choose differernt function
+		if ( strcmp ( recv->command, "L" ) == 0 ) {
+			list_login ( arg, &recv_msg );
+		} else if ( strcmp ( recv_msg->command, "C" ) == 0 ) {
+			//find the user and returned the socket
+			send_fd = find_receiver ( arg->head, recv_msg.receiver );
 
-		//}
+	//		if ( send_fd == -1 ) {
+				//输入姓名有误或者不在线
+	//		}
+
+			//send msg
+			if ( send ( send_fd, recv_msg.msg, MAX_LEN, 0 ) < 0 ) {
+				my_err ( "send", __LINE__ );
+			}
+
+			//这里可以添加聊天日志
+
+			//display the msg
+			printf ( "%s: %s\n", recv_msg.sender, recv_msg.msg );
+		} else if ( strcmp ( arg->command, "Q" ) == 0 ) {
+			printf ( "The client will log out.\n" );
+			close (arg->conn_fd);
+		}
+	}
+
 }
-
+*/
 
 //process the communication of the server and the client 
 void process ( int sock_fd, struct line *head)
 {
+	struct tid 		arg ;
 	int 			conn_fd; 	//客户端套接字
 	int 			cli_len; 	//客户端地址长度
 	pthread_t 		tid; 		//线程ID
@@ -89,7 +100,10 @@ void process ( int sock_fd, struct line *head)
 	#ifdef DEBUG
 		printf ( "socket = %d\nq->socket = %d\n", socket, q->socket );
 	#endif
+	
 
+//	q->socket = conn_fd;
+	
 	//insert the login to the tail
 	while ( p->next != NULL ) {
 		p = p->next;
@@ -97,6 +111,17 @@ void process ( int sock_fd, struct line *head)
 	q->next = p->next; 	//挂尾链
 	p = p->next = q; 	//挂前链，挪尾指针
 	
+	#ifdef DEBUG
+		p = head->next;
+		while ( p != NULL ) {
+			printf ( "p->username = %s\np->socket = %d\n", p->username, p->socket );
+			p = p->next;
+		}
+	#endif
+
+	arg.conn_fd = conn_fd;
+	arg.head = head;
+	
 	//create a thread to process the command
-	pthread_create ( &tid, NULL, (void *)recv_msg, &conn_fd );
+	pthread_create ( &tid, NULL, (void *)recv_msg, &arg );
 }

@@ -1,7 +1,8 @@
 #include "head.h"
 #include "my_err.c"
-#include "process.c"
 #include "creatlink.c"
+#include "process.c"
+
 
 // 主函数 
 int main(int argc, char *argv[])
