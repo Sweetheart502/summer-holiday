@@ -31,6 +31,8 @@
 #include <fcntl.h>
 #include <pthread.h>
 
+#define DEBUG 1
+
 #define  PORT 	4507 		//the server's port
 #define  LIST 	12 		//the line's length
 
@@ -42,15 +44,28 @@ struct user {
 	char password[32];
 	int  state;
 	int  socket;
-}USER;
+};
 
 //send msg
 struct msg {
-	char 	sender[32]; 			//the sender's name
-	char 	receiver[32]; 			//the receiver's name
-	char 	command[32];  			//the client's command
-	char 	content[MAX_LEN]; 		//the client's send_msg
-}MSG;
+	char 		sender[32]; 			//the sender's name
+	char 		receiver[32]; 			//the receiver's name
+	char 		command[32];  			//the client's command
+	char 		content[MAX_LEN]; 		//the client's send_msg
+	struct msg 	*next; 				//the next pointer
+};
+
+//the login's link
+struct  line {
+	char 		username[32]; 				//the enter's name
+	int 		socket; 				//the enter's socket
+	struct line	*next; 					//the next pointer
+};
+
+struct tid {
+	int 		conn_fd;
+	struct line 	*head;
+};
 
 //display the error and write it to file_error
 void my_err ( char *string, int line );
@@ -65,15 +80,17 @@ void record_wr ( int fd, char *string );
 void record_time ( int fd );
 
 //to accept the request
-void process ( int sock_fd );
+void process ( int sock_fd, struct line * head );
 
 //to process it in the thread
 void *recv_msg ( int *conn_fd );
 
+//to register a user
 void regist ();
 
+//to log in the system
 void login ();
 
 //void user_login (int conn_fd);
 
-//void link_server ();
+//void link_server (  );
