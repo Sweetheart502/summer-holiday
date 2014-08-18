@@ -33,10 +33,13 @@
 
 /// #define DEBUG 1
 
-#define  PORT 	4507 		/// the server's port
-#define  LIST 	12 		/// the line's length
+/// the server's port
+#define  PORT 	4507
+/// the line's length
+#define  LIST 	12 
 
-#define MAX_LEN 500 		/// the message's length
+/// the message's length
+#define MAX_LEN 500 
 
 /// user_info
 struct user {
@@ -48,18 +51,26 @@ struct user {
 
 /// send msg
 struct msg {
-	char 		from[32] ; 			/// the sender's name
-	char 		to[32] ;  			/// the receiver's name
-	int 		command ;  			/// the client's command
-	char 		content[MAX_LEN] ; 		/// the client's send_msg
-	struct msg 	*next ; 			/// the next pointer
+	/// the sender's name
+	char 		from[32] ; 		
+	/// the receiver's name
+	char 		to[32] ;  			
+	/// the client's command
+	int 		command ;  		
+	/// the client's send_msg
+	char 		content[MAX_LEN] ; 	
+	/// the next pointer
+	struct msg 	*next ; 		
 } ;
 
 /// the login's link
 struct  line {
-	char 		username[32] ;			/// the enter's name
-	int 		socket ;			/// the enter's socket
-	struct line	*next ; 			/// the next pointer
+	/// the enter's name
+	char 		username[32] ;
+	/// the enter's socket
+	int 		socket ;		
+	/// the next pointer
+	struct line	*next ; 
 } ;
 
 
