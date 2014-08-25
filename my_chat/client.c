@@ -319,7 +319,7 @@ void exit_change ( char *name )
 }
 
 
-/// 验证用户登录的身份是否合法
+/// identify the user 
 void identify (struct user *new , int conn_fd )
 {	
 	/// do statistics
@@ -328,28 +328,28 @@ void identify (struct user *new , int conn_fd )
 	/// receive the username
 	char 	send_msg[32] ; 	
 	
-	/// 用户身份验证，三次机会
+	/// just three times 
 	while ( count < 3 ) {
 		if ( user_login ( conn_fd , new ) == 0 ) {
-			/// 登陆成功
+			/// successful
 			printf ( "\n\n\t\tCongratrulation!\n" ) ;
 			
-			/// 暂停：使用户看到提示信息
+			/// display the output message
 			getchar () ;
 			break ;
 		}
 		else {
-			/// 登录失败
+			/// fail
 			count++ ;
 		}
 		
 	}
 	
-	/// 表示登录失败
+	/// three times is used up
 	if ( count == 3 ) {
 		printf ( "your have made it three times , so the system command you to exit.\n" ) ;
 		
-		/// 暂停：使用户看到提示信息
+		/// dislay the output message
 		getchar () ;
 		exit (1) ;
 	} 
@@ -358,7 +358,7 @@ void identify (struct user *new , int conn_fd )
 	strcpy ( send_msg , new->username ) ;
 	
 	
-	/// 将用户昵称发送给服务器端
+	/// send the username to the server
 	if ( send ( conn_fd , send_msg , sizeof (send_msg) , 0 ) < 0 ) {
 		my_err ( "send" , __LINE__ ) ;
 	}
@@ -370,7 +370,7 @@ void *recv_c ( void *arg )
 {
 	struct user *user = (struct user *)arg ;
 	struct msg  	rec ;
-	int 	    	ret ;
+	int 	    	ret ; 
 	int 		flag = 1 ;
 	
 	//	printf ("user name %s , socket %d \n" , user ->username , user -> socket) ;
@@ -384,17 +384,9 @@ void *recv_c ( void *arg )
 		}
 		else if ( flag == 0 )
 		{
-			printf( "与服务器连接断开！\n" ) ;
+			printf( "Has been disconnected and the server connection.\n" ) ;
 			exit (0) ;
 		}
-
-		#ifdef DEBUG
-		printf("~~~~~~~~~~~~~~~~~~~~~~~~~~rec~~~~\n");
-		printf("from: %s\n",rec.from);
-		printf("to :%s\n",rec.to);
-		printf("connect:%s\n",rec.content);
-		printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
-		#endif
 		
 		printf ( "%s : %s\n" , rec.from , rec.content ) ;
 	}
@@ -412,22 +404,22 @@ void *send_c ( void *arg )
 		
 		strcpy ( sen.from , usr->username) ;
 		
-		/// 输入您所要聊天的对象
-		printf ( "请输入您所要聊天的对象，或者输入list查询在线情况，输入group进入群聊，输入quit退出 .\n " ) ;
+		/// input your command
+		/// printf ( "请输入您所要聊天的对象，或者输入list查询在线情况，输入group进入群聊，输入quit退出 .\n " ) ;
+		printf ( "\n\t\t--------------------------------------\n" ) ;
+		printf ( "\n\t\t      Please choose your choice.      \n" ) ;
+		printf ( "\n\t\t     list  : display the online user  \n" ) ;
+		printf ( "\n\t\t     group : join the group 	      \n" ) ;
+		printf ( "\n\t\t     chater: chat with a user 	      \n" ) ;
+		printf ( "\n\t\t     quit  : exit the chatting	      \n" ) ;
+		printf ( "\n\t\t--------------------------------------\n" ) ;
+		printf ( "Input the infomation:" ) ;
 		scanf ( "%s" , sen.to ) ;
 		getchar () ;
 		if ( strcmp ( sen.to , "list" ) == 0 ) {
 			strcpy ( sen.content , "list" ) ;
 			strcpy ( sen.to , "list" ) ;
-
-			#ifdef DEBUG
-			printf("~~~~~~~~~~~~~~~~~~~~~~~~~~send~~~~\n");
-			printf("from: %s\n",sen.from);
-			printf("to :%s\n",sen.to);
-			printf("connect:%s\n",sen.content);
-			printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
-			#endif
-			
+		
 			if ( send ( usr->socket , &sen , sizeof ( struct msg ) , 0 ) < 0 ) {
 				my_err ( "sen" , __LINE__ ) ;
 			}	
@@ -436,15 +428,7 @@ void *send_c ( void *arg )
 			/// should send quit to server , and the serner delete the user
 			strcpy ( sen.content , "quit" ) ;
 			strcpy ( sen.to , "server" ) ;
-			
-			#ifdef DEBUG
-			printf("~~~~~~~~~~~~~~~~~~~~~~~~~~send~~~~\n");
-			printf("from: %s\n",sen.from);
-			printf("to :%s\n",sen.to);
-			printf("connect:%s\n",sen.content);
-			printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
-			#endif
-			
+						
 			if ( send ( usr->socket , &sen , sizeof ( struct msg ) , 0 ) < 0 ) {
 				my_err ( "sen" , __LINE__ ) ;
 			}
@@ -465,28 +449,20 @@ void *send_c ( void *arg )
 			
 			while ( 1 ) {
 			
-				/// 将发送者昵称显示
+				/// display the sender_name
 				usleep ( 10000 ) ;
 				printf ( "%s: " , sen.from ) ;
 
-				/// 输入发送消息内容
+				/// input the send_message
 				/// scanf ( "%s" , sen.content ) ;
 				gets ( sen.content );
-				
-		///		getchar () ;
-			
+							
 				if ( strcmp ( sen.content , "quit" ) == 0 ) {
 					break ;
 				} else {
 					
-					/// 发送数据包
-					#ifdef DEBUG
-					printf("~~~~~~~~~~~~~~~~~~~~~~~~~~send~~~~\n");
-					printf("from: %s\n",sen.from);
-					printf("to :%s\n",sen.to);
-					printf("connect:%s\n",sen.content);
-					printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
-					#endif
+					/// send the data_packet
+				
 
 					if ( send ( usr->socket , &sen , sizeof (struct msg) , 0 ) < 0 ) {
 						my_err ( "send" , __LINE__ ) ;
@@ -494,7 +470,7 @@ void *send_c ( void *arg )
 				}
 			}
 			
-			printf ( " 您已经退出与%s聊天!\n ", sen.to ) ;
+			printf ( " You have already quit the chat with %s!\n ", sen.to ) ;
 			
 		}
 		
@@ -529,8 +505,7 @@ void login ( int conn_fd )
 
 int link_server ()
 {
-	/// 用户选择登陆之后，先进行与服务器的连接
-	int 			conn_fd ; 		/// the client's socket
+	int 			conn_fd ; 
 	int 			serv_port ;
 	char 			ip[32] ;
 	struct sockaddr_in 	serv_addr ;
@@ -581,7 +556,6 @@ int link_server ()
 /// input the user_info and identity its validity
 int user_login ( int conn_fd , struct user *new )
 {
-	/// 输入用户名和密码，并验证是否存在，存在且未登录则登陆，并修改其状态以及套接字数值．
 	FILE 		*fp ;
 	struct user	chater[20] ;
 	char 		recv_msg[MAX_LEN] ;
@@ -593,7 +567,6 @@ int user_login ( int conn_fd , struct user *new )
 	printf ("socket is %d \n" , conn_fd ) ;
 	
 	while (1){
-		/// 进入身份验证页面
 		system ( "clear" ) ;
 		
 		printf ( "\n\t\t---------------------------------------\n" ) ;
@@ -602,17 +575,16 @@ int user_login ( int conn_fd , struct user *new )
 		printf ( "\n\n\n\t\t\t   username: " ) ;
 		printf ( "\n\n\t\t\t   password: \33[2A" ) ;
 		
-		/// 输入用户昵称
+		/// input the username
 		scanf ( "%s" , new->username ) ;
 		printf ( "\33[2B\t\t\t             \33[1A" ) ;
 		
-		/// 输入用户密码,使其不回显
+		/// input the password
 		system ( "stty -echo" ) ;
 		scanf ( "%s" , new->password ) ;
 		system ( "stty echo" ) ;
 		new->socket = conn_fd ;
 
-		/// 清除缓存
 		getchar () ;
 		
 		/// open the file_info
@@ -620,47 +592,44 @@ int user_login ( int conn_fd , struct user *new )
 			my_err ( "fopen" , __LINE__ ) ;
 		}
 		
-		/// 设置循环变量并初始化
+		/// init
 		i = 0 ;
 		while ( !feof ( fp ) ) {
-			/// 从文件中读出用户信息
+			/// read the user_info from the file
 			fscanf ( fp , "%s %s %d %d\n" , chater[i].username , chater[i].password , &chater[i].state , &chater[i].socket ) ;
 			
-			/// 比较用户信息是否正确
+			/// check the name
 			if ( strcmp ( new->username , chater[i].username ) == 0 ) {
-				/// 用户名匹配
 				if ( strcmp ( new->password, chater[i].password ) == 0 ) {
-					/// 用户密码匹配
+					/// check the password
 					if ( chater[i].state == 0 ) {
 
-						/// 在服务器端显示用户登陆成功
+						/// display the success at the client
 						printf ( "\n\n\t\t" ) ;
 						printf ( "%s login" , chater[i].username ) ;
 
 						record_login ( chater[i].username ) ;
 
 						flag = 1 ;
-						/// 用户成功登陆,同时要修改文件内容，改变该用户的状态以及套接字
+						/// login successfully and change the state and socket
 						chater[i].state = 1 ;
 						chater[i].socket = conn_fd ;
 					} else {
-						/// 用户已登录
+						/// has logined
 						lemon = 2 ;
 					} /* endif the state */
 				} else {
-					/// 用户密码错误
+					/// password is wrong
 					lemon = 1 ;
 				} /* endif the password */
 			} 
-			/// 遍历整个用户信息
 			i++ ;
 		}
 		sum = i ;
 		fclose (fp) ;
 		
-		/// 判断是否登陆成功
 		if ( !flag ) {
-			/// lemon来表示错误原因
+			/// lemon 
 			switch ( lemon ) {
 				case 0: 
 					printf ( "\n\n\t\tSorry, your username is wrong.\n" ) ;
@@ -679,14 +648,14 @@ int user_login ( int conn_fd , struct user *new )
 			
 			return 1 ;
 		} else {
-			/// 登陆成功
+			/// success
 			if ( ( fp = fopen ( "./info" , "wt" ) ) == NULL ) {
 				my_err ( "fopen" , __LINE__ ) ;
 			}
 			
 			i = 0 ;
 			
-			/// 将数据更新重新写入文件
+			/// update the file
 			while ( i < sum  ) {
 				fprintf ( fp , "%s %s %d %d\n" , chater[i].username , chater[i].password , chater[i].state , chater[i].socket ) ;
 				i++ ;

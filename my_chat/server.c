@@ -173,7 +173,7 @@ void delete_link ( char *string )
 	p = head->next ;
 	
 	for ( q = head ; p ; q = p , p = p->next ) {
-		/// 寻找即将下线用户并删除结点
+		/// find the user that will exit and delete that
 		if ( strcmp (p->username , string ) == 0 ) {
 			q->next = p->next ;
 			free (p) ;
@@ -188,17 +188,16 @@ void list_line ( char *string )
 {
 	struct line *p = head->next ;
 	
-	strcpy ( string , "\n在线用户: \n" ) ;
+	strcpy ( string , "\nonline: \n" ) ;
 	
 	
 	while ( p ) {
-		/// 将用户名信息写入
+		/// write the user's message to the string
 		strcat ( string , "\t " ) ;
 		strcat ( string , p->username ) ;
 		strcat ( string , " \n" ) ;
 		
-		
-		/// 遍历在线链表
+		/// traverse the entire list
 		p = p->next ;
 	}
 }
@@ -221,73 +220,61 @@ void record_chat ( char *string )
 /// to process it in the thread
 void *thread_chat ( void * member )
 {
-	/// 存储用户昵称和用户在服务端的套接字
+	/// store the username and the serv_fd
 	struct user 	user = *(struct user *)member ; 
 	
-	/// 保存recv的返回值
+	/// record the recv_function's returned value
 	int flag = 1 ;
 	
-	/// 发送信息的结构体
+	/// send message's struct
 	struct msg 	info , sen ;
 	
-	/// 接受信息者fd 发送信息者fd 
+	/// recever and sender's socket
 	int 		send_fd , recv_fd ;
 	
 	
-	/// 写日志时将所有信息存储在string中
+	/// write the chatting info to the string
 	char 		string[500] ;
 	
-	/// 将在线用户更新
+	/// update the online user
 	struct line 	*p = head->next ;
 	
 	while (1) {
-		/// 将结构体清空
+		/// init the value
 		memset ( &info , 0 , sizeof (struct msg) ) ;
 		
-		/// 接收客户端信息
+		/// recever the client's message
 		flag = recv ( user.socket , &info , sizeof (struct msg) , 0 ) ;
 		if ( flag < 0 ) {
 			my_err ( "recv" , __LINE__ ) ;
 		}
 		else if ( flag == 0 ) {
-			/// 接受信息为空时表示，断开连接
+			/// the message is empty
 			printf( "客户端断开连接！" ) ;
 
-			/// 使p指上来
+			/// move the p's pointer
 			p = head->next ;
 
 			while ( p != NULL ) {
-				/// 寻找发送消息者的套接字
+				/// find the sender's socket
 				if ( p->socket == user.socket) {
 					break ;
 				}
 				p = p->next ;
 			}
 			
-			/// 将该用户在在线链表中删除
+			/// delete the user in the link
 			delete_link ( p->username ) ;
 			if ( close( user.socket ) < 0 )
 				perror( "close" ) ;
 
-			/*!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
-			
 			return ;
 		}
-
-		#ifdef DEBUG
-		printf("~~~~~~~~~~~~~~~~~~~~~~~~~recv~info~~~~\n");
-		printf("from: %s\n",info.from);
-		printf("to :%s\n",info.to);
-		printf("connect:%s\n",info.content);
-		printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
-		#endif
-		//		assert (ret == sizeof (struct msg)) ;0.
 		
-		
-		/// 在服务器端显示语句
+		/// display the chatting info
 		printf ( "%s to %s : %s.\n" , info.from , info.to , info.content ) ;
 		
-		/// 将聊天信息写入文件chat
+		/// record the chatting info
 		strcpy ( string , info.from ) ;
 		strcat ( string , " to " ) ;
 		strcat ( string , info.to ) ;
@@ -297,54 +284,32 @@ void *thread_chat ( void * member )
 		
 		record_chat ( string ) ;
 		
-		/// 如果是server则判断是不是list or quit，是则调用相应的函数，不是给它发送输入错误．
-		
+		/// according to the command to do some process
 		if ( strcmp ( info.to , "server" ) == 0 ) {
-			/// 内容识别
+			
 			if ( strcmp ( info.content , "list" ) == 0 ) {
 				
-				/// 将sen传过去，获得在线用户的字符串
 				list_line ( sen.content ) ;
 			} else if ( strcmp ( info.content , "quit" ) == 0 ) {
 				
 				strcpy ( sen.content , "the user is deleted.\n\0" ) ;
 
-				/// 将该用户从在线链表中删除
+				/// delete the user in the link
 				delete_link ( info.from ) ;
 				
 				if ( close ( user.socket ) < 0 )
 					perror( "close" ) ;
-				/*!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
+				
 				return ;
 			} else {
 				
-				/// 说明发送命令有误
 				strcpy ( sen.content , "Your command does not exit.\n" ) ;
 			}
 
-// 			p = head->next;
-// 			
-// 			while ( p != NULL ) {
-// 				/// 寻找发送消息者的套接字
-// 				if ( strcmp (p->username, info.from) == 0 ) {
-// 					recv_fd = p->socket;
-// 					break;
-// 				}
-// 				p = p->next;
-// 			}
-			
 			strcpy ( sen.to , info.from ) ;
 			strcpy ( sen.from , "server" ) ;
 
-			/// 发送信息给发送消息者
-			#ifdef DEBUG
-			printf("~~~~~~~~~~~~~~~~~~~~~~~~~~send~~~~\n");
-			printf("from: %s\n",sen.from);
-			printf("to :%s\n",sen.to);
-			printf("connect:%s\n",sen.content);
-			printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
-			#endif
-			
+			/// send the message	
 			if ( send ( user.socket , &sen , sizeof ( struct msg ) , 0 ) < 0 ) {
 				my_err ( "send" , __LINE__ ) ;
 			}
@@ -352,31 +317,23 @@ void *thread_chat ( void * member )
 		}
 		else if ( strcmp ( info.to , "list" ) == 0 ) {
 
-			/// 显示在线用户昵称
+			/// display the username that online
 			list_line ( sen.content ) ;
 			
 			strcpy ( sen.to , info.from ) ;
 			strcpy ( sen.from , "server" ) ;
 
-			/// 发送信息给发送消息者
-			#ifdef DEBUG
-			printf("~~~~~~~~~~~~~~~~~~~~~~~~~~send~~~~\n");
-			printf("from: %s\n",sen.from);
-			printf("to :%s\n",sen.to);
-			printf("connect:%s\n",sen.content);
-			printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
-			#endif
-			
+			/// send the message
 			if ( send ( user.socket , &sen , sizeof ( struct msg ) , 0 ) < 0 ) {
 				my_err ( "send" , __LINE__ ) ;
 			}
 		}
 		else if ( strcmp ( info.to , "group" ) == 0 ) {
 
-			/*~~~~~~~~~~~群聊~~~~~~~~~~~*/
 			p = head->next ;
 			memset ( &sen , 0 , sizeof (struct msg) ) ; 
-			/// 将内容显示为[group] info.content
+
+			/// format : [group] info.content
 			strcpy ( sen.from , info.from ) ;
 			strcpy ( sen.to , info.to ) ;
 			strcpy ( sen.content , "[" ) ;
@@ -385,14 +342,6 @@ void *thread_chat ( void * member )
 			strcat ( sen.content , info.content ) ;
 
 			while ( p != NULL ) {
-
-				#ifdef DEBUG
-				printf("~~~~~~~~~~~~~~~~~~~~~~~~~~send~~~~\n");
-				printf("from: %s\n",sen.from);
-				printf("to :%s\n",sen.to);
-				printf("connect:%s\n",sen.content);
-				printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
-				#endif
 				
 				if ( send ( p->socket, &sen, sizeof ( struct msg ), 0 ) < 0 ) {
 					my_err ( "send" , __LINE__ ) ;
@@ -407,7 +356,7 @@ void *thread_chat ( void * member )
 			/// 寻找显现用户中是否存在info.to
 			while ( p != NULL ) {
 				if ( strcmp ( p->username , info.to ) == 0 ) {
-					/// 寻找接收消息者的套接字
+					/// find the socket
 					send_fd = p->socket ;
 					break ;
 				}
@@ -422,28 +371,13 @@ void *thread_chat ( void * member )
 				strcpy ( sen.to , info.from ) ;
 				strcpy ( sen.from , "server" ) ;
 
-				#ifdef DEBUG
-				printf("~~~~~~~~~~~~~~~~~~~~~~~~~~send~~~~\n");
-				printf("from: %s\n",info.from);
-				printf("to :%s\n",info.to);
-				printf("connect:%s\n",info.content);
-				printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
-				#endif
-				
 				if ( send ( user.socket , &sen , sizeof ( struct msg ) , 0 ) < 0 ) {
 					my_err ( "send" , __LINE__ ) ;
 				}
 				
 			} 
 			else {
-				/// 发送消息给接收消息者
-				#ifdef DEBUG
-				printf("~~~~~~~~~~~~~~~~~~~~~~~~~~send~~~~\n");
-				printf("from: %s\n",info.from);
-				printf("to :%s\n",info.to);
-				printf("connect:%s\n",info.content);
-				printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
-				#endif
+				/// send the message
 				if ( send ( send_fd , &info , sizeof ( struct msg ) , 0 ) < 0 ) {
 					my_err ( "send" , __LINE__ ) ;
 				}
@@ -459,7 +393,7 @@ void *thread_chat ( void * member )
 /// list the line_user's link
 struct line 		*head;
 
-/// 主函数 
+/// main function
 int main (int argc , char *argv[])
 {
  	int 			sock_fd ;
@@ -468,23 +402,23 @@ int main (int argc , char *argv[])
 	struct sockaddr_in 	cli_addr , serv_addr ;
 
 
-	/// 创建一个TCP套接字 
+	/// creat a TCP socket
 	printf ( "Now the system is creating the scket. \n" ) ;
 	sock_fd = socket ( AF_INET , SOCK_STREAM , 0 ) ;
 	if ( sock_fd == -1 ) { 	
-		// failed 
+		/// failed 
 		my_err ( "socket" , __LINE__ ) ;
 	}
 
 
-	/// 设置套接字，使其可以重新绑定端口 
+	/// set the socket and bind it
 	optval = 1 ;
 	if ( setsockopt ( sock_fd , SOL_SOCKET , SO_REUSEADDR , ( void * ) &optval , sizeof ( int ) ) == -1 ) {
-		/// 成功返回0， 失败返回-1
+		/// success 0， fail -1
 		my_err ( "setsockopt" , __LINE__ ) ;
 	} 
 
-	/// 初始化服务器端地址结构 
+	/// init the serv_addr
 	memset ( &serv_addr , 0 , sizeof ( struct sockaddr_in ) ) ;
 	/// type of the address
 	serv_addr.sin_family = AF_INET ;
@@ -502,7 +436,7 @@ int main (int argc , char *argv[])
 	}
 
 
-	/// 将套接字转化为监听套接字 
+	/// listen the scoket
 	printf ( "Now the system is listening the socket.  \n" ) ;
 	if ( listen ( sock_fd, LIST ) == -1 ) {
 		my_err ( "listen" , __LINE__ ) ;
@@ -528,9 +462,9 @@ int main (int argc , char *argv[])
 // process the communication of the server and the client 
 void process ( int sock_fd )
 {
-	int 			cli_len ; 	/// 客户端地址长度
-	pthread_t 		tid ; 		/// 线程ID
-	struct sockaddr_in 	cli_addr ; 	/// 客户端地址
+	int 			cli_len ; 	
+	pthread_t 		tid ; 		
+	struct sockaddr_in 	cli_addr ; 	
 	
 	int 			socket , ret ;
 	
@@ -557,7 +491,7 @@ void process ( int sock_fd )
 		my_err ( "recv" , __LINE__ ) ;
 	}
 	
-	assert ( ret == 32 ) ;
+	/// assert ( ret == 32 ) ;
 	
 	strcpy ( q->username , member.username ) ;
 	
@@ -575,9 +509,9 @@ void process ( int sock_fd )
 	}
 	
 	q->next = p->next ; 	
-	/// 挂尾链
+	
 	p = p->next = q ;
-	/// 挂前链，挪尾指针
+	
 	
 	/// create a thread to process the command
 	pthread_create ( &tid , NULL , (void *)thread_chat , (void*)&member ) ;
