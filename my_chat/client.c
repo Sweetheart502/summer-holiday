@@ -134,7 +134,7 @@ void menu ( int conn_fd )
 		system ( "clear" ) ;
 		
 		/// the client's menu
-		printf ( "\t\t -----   WELCOME TO THE CLIENT  -------\n" ) ;
+		printf ( "\n\n\n\t\t -----   WELCOME TO THE CLIENT  -------\n" ) ;
 		printf ( "\t\t --------------------------------------\n" ) ;
 		printf ( "\t\t 		A: SIGN UP\n\n" ) ;
 		printf ( "\t\t 		B: LOG IN\n\n" ) ;
@@ -142,7 +142,7 @@ void menu ( int conn_fd )
 		printf ( "\t\t --------------------------------------\n" ) ;
 		printf ( "\t\t ----------- ENJOY YOURSELF -----------\n" ) ;
 		
-		printf ( "\t\t please input your choice: " ) ;
+		printf ( "\n\t\t please input your choice: " ) ;
 		
 		/// 输入选项
 		scanf ( "%c" , &choice ) ;
@@ -231,10 +231,23 @@ void regist ()
 		
 		system ( "clear" ) ;
 		
-		printf ( "\t\t ==>== WELCOME TO REGIST ==<==\n" ) ;
-		printf ( "\t\t  input username & password\n" ) ;
+		printf ( "\n\n\n\t\t == > == WELCOME TO REGIST == < ==\n\n" ) ;
+		printf ( "\t\t\tinput your name and pwd: \n" ) ;
 		
-		scanf ( "\t\t%s %s" , new.username , new.password ) ;
+		printf ( "\n\n\t\t\t   username: " ) ;
+		printf ( "\n\n\t\t\t   password: \33[2A" ) ;
+		
+		/// input the username
+		scanf ( "%s" , new.username ) ;
+		printf ( "\33[2B\t\t\t             \33[1A" ) ;
+		
+		/// input the password
+		system ( "stty -echo" ) ;
+		scanf ( "%s" , new.password ) ;
+		system ( "stty echo" ) ;
+
+
+	//	scanf ( "\t\t%s %s" , new.username , new.password ) ;
 		getchar () ;
 		
 		/// open the file_info
@@ -332,7 +345,7 @@ void identify (struct user *new , int conn_fd )
 	while ( count < 3 ) {
 		if ( user_login ( conn_fd , new ) == 0 ) {
 			/// successful
-			printf ( "\n\n\t\tCongratrulation!\n" ) ;
+			printf ( "\n\n\t\t\t -.- Congratrulation!\n" ) ;
 			
 			/// display the output message
 			getchar () ;
@@ -404,16 +417,15 @@ void *send_c ( void *arg )
 		
 		strcpy ( sen.from , usr->username) ;
 		
-		/// input your command
-		/// printf ( "请输入您所要聊天的对象，或者输入list查询在线情况，输入group进入群聊，输入quit退出 .\n " ) ;
-		printf ( "\n\t\t--------------------------------------\n" ) ;
-		printf ( "\n\t\t      Please choose your choice.      \n" ) ;
-		printf ( "\n\t\t     list  : display the online user  \n" ) ;
-		printf ( "\n\t\t     group : join the group 	      \n" ) ;
-		printf ( "\n\t\t     chater: chat with a user 	      \n" ) ;
-		printf ( "\n\t\t     quit  : exit the chatting	      \n" ) ;
-		printf ( "\n\t\t--------------------------------------\n" ) ;
-		printf ( "Input the infomation:" ) ;
+		printf ( "\n\t\t``````````````````````````````````````\n" ) ;
+		printf ( "\n\t\t  @_@　 ＠＿＠  CHOICE  ＠＿＠   @_@  \n" ) ;
+		printf ( "\n\t\t**************************************\n" ) ;
+		printf ( "\n\t\t     -> list  : \n\t\t\t\tlist online user      \n" ) ;
+		printf ( "\n\t\t     -> group : \n\t\t\t\tgroup  chatting       \n" ) ;
+		printf ( "\n\t\t     -> chater: \n\t\t\t\tchat with a user      \n" ) ;
+		printf ( "\n\t\t     -> quit  : \n\t\t\t\texit  chatting        \n" ) ;
+		printf ( "\n\t\t--------------------------------------\n\n" ) ;
+		printf ( "\t\tInput the infomation:\n" ) ;
 		scanf ( "%s" , sen.to ) ;
 		getchar () ;
 		if ( strcmp ( sen.to , "list" ) == 0 ) {
@@ -569,10 +581,10 @@ int user_login ( int conn_fd , struct user *new )
 	while (1){
 		system ( "clear" ) ;
 		
-		printf ( "\n\t\t---------------------------------------\n" ) ;
-		printf ( "\t\t\t ------ WELCOME TO LOGIN ------\n" ) ;
+		printf ( "\n\n\n\t\t----------------------------------------\n" ) ;
+		printf ( "\t\t    ------ WELCOME TO LOGIN ------" ) ;
 		
-		printf ( "\n\n\n\t\t\t   username: " ) ;
+		printf ( "\n\n\t\t\t   username: " ) ;
 		printf ( "\n\n\t\t\t   password: \33[2A" ) ;
 		
 		/// input the username
@@ -605,8 +617,9 @@ int user_login ( int conn_fd , struct user *new )
 					if ( chater[i].state == 0 ) {
 
 						/// display the success at the client
-						printf ( "\n\n\t\t" ) ;
-						printf ( "%s login" , chater[i].username ) ;
+						printf ( "\n\n\n\t\t\t~~~~~~~~~~~~~~~~~~~~~~" ) ;
+						printf ( "\n\t\t\t" ) ;
+						printf ( "用户%s 已经成功登陆．\n\t\t\t~~~~~~~~~~~~~~~~~~~~~~" , chater[i].username ) ;
 
 						record_login ( chater[i].username ) ;
 

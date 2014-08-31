@@ -343,8 +343,11 @@ void *thread_chat ( void * member )
 
 			while ( p != NULL ) {
 				
-				if ( send ( p->socket, &sen, sizeof ( struct msg ), 0 ) < 0 ) {
-					my_err ( "send" , __LINE__ ) ;
+				if ( strcmp ( p->username, info.from ) != 0 ) {
+					
+					if ( send ( p->socket, &sen, sizeof ( struct msg ), 0 ) < 0 ) {
+						my_err ( "send" , __LINE__ ) ;
+					}
 				}
 				p = p->next ;
 			}
