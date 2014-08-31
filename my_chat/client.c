@@ -187,7 +187,23 @@ void my_err ( char *string , int line )
 /// record the user's login
 void record_login ( char * string )
 {
+	int 	fd ;
 
+	if ( ( fd = open ( "./login" , O_RDWR | O_CREAT | O_APPEND , 436 ) ) == -1 ) {
+		perror ( "open" ) ;
+		exit (1) ;
+	}
+
+	record_wr ( fd , string ) ;
+
+	if ( write ( fd , " login at " , 10 ) != 10 ) {
+		perror ( "write" ) ;
+		exit (1) ;
+	}
+
+	record_time ( fd ) ;
+
+	close ( fd ) ;
 }
 
 /// record the error to the file of error
